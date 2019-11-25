@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.admin.member">
+<!--member  -->
+	<resultMap id="adminMemResult" type="MemberVO">
+		<result property="member_code" column="member_code" />
+		<result property="member_id" column="member_id" />
+		<result property="member_pwd" column="member_pwd" />
+		<result property="member_pwd_lock" column="member_pwd_lock" />
+		
+		<result property="member_pwd_q" column="member_pwd_q" />
+		<result property="member_pwd_a" column="member_pwd_a" />
+		<result property="member_name" column="member_name" />
+		
+		<result property="member_gender" column="member_gender" />
+		<result property="member_cp1" column="member_cp1" />
+		<result property="member_cp2" column="member_cp2" />
+		<result property="member_cp3" column="member_cp3" />
+		
+		<result property="member_hp1" column="member_hp1" />
+		<result property="member_hp2" column="member_hp2" />
+		<result property="member_hp3" column="member_hp3" />
+		<result property="member_cp_yn" column="member_cp_yn" />
+		<result property="member_email1" column="member_email1" />
+		<result property="member_email2" column="member_email2" />
+		<result property="member_email_yn" column="member_email_yn" />
+		
+		<result property="member_addr1" column="member_addr1" />
+		<result property="member_addr2" column="member_addr2" />
+		<result property="member_addr3" column="member_addr3" />
+		<result property="member_addr4" column="member_addr4" />
+		
+		<result property="member_birth_y" column="member_birth_y" />
+		<result property="member_birth_m" column="member_birth_m" />
+		<result property="member_birth_d" column="member_birth_d" />
+		<result property="member_birth_sl" column="member_birth_sl" />
+		
+		<result property="member_cre_date" column="member_cre_date" />
+		<result property="member_point" column="member_point" />
+		<result property="member_rank" column="member_rank" />
+		<result property="member_lately_date" column="member_lately_date" />
+		<result property="member_total_buy" column="member_total_buy" />
+		<result property="member_total_order" column="member_total_order" />
+		<result property="member_saving" column="member_saving" />
+	</resultMap>
+		
+	<select id="selectAllMembersList" resultType="MemberVO" parameterType="java.util.Map">
+	
+			select * from (
+	    select ROWNUM as recNum, member_code, member_id,member_name,member_gender,member_point,member_rank,member_cre_date,
+	    member_lately_date,member_total_order,member_total_buy,member_saving from(
+       	 select member_code, member_id,member_name,member_gender,member_point,member_rank,member_cre_date,
+       	 member_lately_date,member_total_order,member_total_buy,member_saving
+       	  from member
+       	  
+       	  <choose>
+       	  	<when test="keyword != null and !keyword.equals('')">
+       	  		where member_name like '%'|| #{keyword} ||'%'
+       	  		<if test="member_gender !=null and !member_gender.equals('') and !member_gender.equals('all')">
+       	  		and member_gender = #{member_gender}
+       	 		 </if>
+       	  	</when>
+       	  	<otherwise>
+       	  		<if test="member_gender !=null  and !member_gender.equals('') and !member_gender.equals('all') ">
+       	  	 	where member_gender = #{member_gender}
+       	 		 </if>
+       	  	</otherwise>
+       	  	
+       	  </choose>
+       	  
+       	   order by 
+       	   
+       	  <if test="order_lately_date !=null and !order_lately_date.equals('')">
+       	   <choose>
+       	   	<when test="order_lately_date.equals('lately_login_desc')">
+       	   		member_lately_date DESC,
+       	   	</when>
+       	   		<when test="order_lately_date.equals('lately_login_asc')">
+       	   		member_lately_date ASC,
+       	    </when>
+       	   </choose>
+       	   </if>
+       	   
+       	   <if test="order_total_buy !=null and !order_total_buy.equals('')">
+       	   <choose>
+       	   	<when test="order_total_buy.equals('total_buy_desc')">
+       	   		member_total_buy DESC,
+       	   	</when>
+       	   	<when test="order_total_buy.equals('total_buy_asc')">
+       	   		member_total_buy ASC,
+       	   	</when>
+       	   </choose>
+       	   </if>
+       	   
+       	   <if test="order_total_order !=null and !order_total_order.equals('')">
+       	   <choose>
+       	   	<when test="order_total_order.equals('total_order_desc')">
+       	   		member_total_order DESC,
+       	   	</when>
+       	   	 <when test="order_total_order.equals('total_order_asc')">
+       	   		member_total_order ASC,
+       	   	</when>
+       	   </choose>
+       	   </if>
+       	  
+       	  member_code DESC
+       	  
+           )
+		)where recNum between 
+		(#{section,jdbcType=NUMERIC}-1)*200+(#{pageNum,jdbcType=NUMERIC}-1)*20+1 
+		and 
+		(#{section,jdbcType=NUMERIC}-1)*200+#{pageNum,jdbcType=NUMERIC}*20 
+		
+            	
+	</select>
+	
+
+	<delete id="deleteMember" parameterType="String">
+		delete member where member_code=#{member_code}
+	
+	</delete>
+	
+	<select id="selectTotalMembers" resultType="int">
+		select count(member_code) from member 
+	
+	</select> 
+	
+		<select id="selectMemberByCertain" resultMap="adminMemResult" parameterType="java.util.Map">
+	
+		select member_id,member_code, member_name,member_saving,member_point,member_lately_date,member_total_login,member_total_buy,member_total_order from (
+		select rownum rn,member_code, member_id, member_name,member_saving,member_point,member_lately_date,member_total_login,member_total_buy,member_total_order 
+		from member
+		<choose>
+			<when test="member_code !=null and !member_code.equals('')">
+				where member_code=#{member_code} ) where rn=1
+			</when>		
+			<otherwise>
+			where member_name like '%' || #{memberKeyword} || '%' 
+			or member_id like '%' || #{memberKeyword} || '%'
+				) where rn=1
+			</otherwise>
+			<!--Nonmember는 아예따른쪽으로  -->
+		</choose>		
+	
+	
+	</select>
+	
+	<select id="selectAllMemberMen" resultType="int" parameterType="String">
+	select count(*) from member where member_gender = #{param1}
+	
+	</select>
+	<select id="selectAllMemberWomen"  resultType="int" parameterType="String">
+	select count(*) from member where member_gender = #{param1}
+	</select>
+	
+	<select id="totalAllMember" resultType="int">
+	select count(*) from member
+	</select>
+	<select id="totalAllNonMember" resultType="int">
+	select count(*) from nonmember
+	</select>
+	
+	<select id="selectedMembers" resultType="int" parameterType="java.util.Map">
+	select count(*) from member
+	<choose>
+       	  	<when test="keyword != null and !keyword.equals('')">
+       	  		where member_name like '%'|| #{keyword} ||'%'
+       	  		<if test="member_gender !=null and !member_gender.equals('') and !member_gender.equals('all')">
+       	  		and member_gender = #{member_gender}
+       	 		 </if>
+       	  	</when>
+       	  	<otherwise>
+       	  		<if test="member_gender !=null  and !member_gender.equals('') and !member_gender.equals('all') ">
+       	  	 	where member_gender = #{member_gender}
+       	 		 </if>
+       	  	</otherwise>
+       	  	
+       	  </choose>
+	</select>
+</mapper>

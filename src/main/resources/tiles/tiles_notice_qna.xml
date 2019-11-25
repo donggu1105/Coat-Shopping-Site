@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+       
+      <tiles-definitions>
+      	<definition name="/notice/qna/list" extends="baseLayout2">
+      		<put-attribute name="title" value="QnA 게시판" />
+      		<put-attribute name="body" value="/WEB-INF/views/notice/qna/list.jsp" />
+      	</definition>
+      	<definition name="/notice/qna/write_view" extends="baseLayout2">
+      		<put-attribute name="title" value="QnA 글작성"></put-attribute>
+      		<put-attribute name="body" value="/WEB-INF/views/notice/qna/write_view.jsp"></put-attribute>
+      	</definition>
+      	<definition name="/notice/qna/content_view" extends="baseLayout2">
+      		<put-attribute name="title" value="QnA 상세보기"></put-attribute>
+      		<put-attribute name="body" value="/WEB-INF/views/notice/qna/content_view.jsp"></put-attribute>
+      	</definition>
+      	<definition name="/notice/qna/modify" extends="baseLayout2">
+      		<put-attribute name="title" value="QnA 수정"></put-attribute>
+      		<put-attribute name="body" value="/WEB-INF/views/notice/qna/modify.jsp"></put-attribute>
+      	</definition>
+      	<definition name="/notice/qna/replay_view" extends="baseLayout2">
+      		<put-attribute name="title" value="QnA 답글"></put-attribute>
+      		<put-attribute name="body" value="/WEB-INF/views/notice/qna/replay_view.jsp"></put-attribute>
+      	</definition>
+      	<definition name="/notice/qna/myQnAList" extends="baseLayout2">
+			<put-attribute name="title" value="내글수정" />
+			<put-attribute name="body" value="/WEB-INF/views/notice/qna/myQnAList.jsp" />
+		</definition>
+      </tiles-definitions>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+	<definition name="admin_baseLayout"
+		template="/WEB-INF/views/admin/common/layout.jsp">
+		<put-attribute name="title" value="레이아웃 페이지" />
+		<put-attribute name="header" value="/WEB-INF/views/admin/common/header.jsp" />
+		<put-attribute name="side" value="/WEB-INF/views/admin/common/side.jsp" />
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/admin/common/footer.jsp" />
+	</definition>
+	
+	<definition name="empty" template="/WEB-INF/views/admin/common/emptyLayout.jsp">
+		<put-attribute name="content" value="" />
+	</definition>
+	
+	<definition name="/admin/order/listOrders" extends="admin_baseLayout">
+		<put-attribute name="body" value="/WEB-INF/views/admin/order/listOrders.jsp" />
+	</definition>
+	
+	<definition name="/admin/order/orderStatics" extends="admin_baseLayout">
+		<put-attribute name="title" value="주문 통계" />
+		<put-attribute name="body" value="/WEB-INF/views/admin/order/orderStatics.jsp" />
+	</definition>
+	
+
+</tiles-definitions>
+
+

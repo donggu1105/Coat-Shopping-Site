@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration 	PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+	<configuration>
+	<settings>
+		<setting value="false" name="cacheEnabled" />
+		<setting value="NULL" name="jdbcTypeForNull" />
+	</settings>
+	 <typeAliases>
+	    <typeAlias type="com.my.spring.member.vo.MemberVO" alias="MemberVO" />
+	    <typeAlias type="com.my.spring.member.vo.MemberDetailVO" alias="MemberDetailVO" />
+	    <typeAlias type="com.my.spring.product.vo.ProductVO" alias="ProductVO" />
+	    <typeAlias type="com.my.spring.product.vo.ProductDetailVO" alias="ProductDetailVO"/>
+	    <typeAlias type="com.my.spring.product.vo.ImageFileVO" alias="ImageFileVO" />
+	    <typeAlias type="com.my.spring.member.nonmember.vo.NonMemberVO" alias="NonMemberVO" />
+	    <typeAlias type="com.my.spring.cart.vo.CartVO" alias="CartVO"/>
+	    <typeAlias type="com.my.spring.order.vo.OrderVO" alias="orderVO" />
+	    <typeAlias type="com.my.spring.order.vo.RefundVO" alias="refundVO" />
+	    <typeAlias type="com.my.spring.notice.review.vo.ReviewVO" alias="ReviewVO" />
+	    <typeAlias type="com.my.spring.notice.review.vo.Review_ImageVO" alias="review_ImageVO" />
+	    <typeAlias type="com.my.spring.notice.review.vo.Review_ReplyVO" alias="review_ReplyVO" />
+	    <typeAlias type="com.my.spring.notice.qna.vo.QnAVO" alias="QnAVO"/>
+	</typeAliases>
+</configuration>
+	

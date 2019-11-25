@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.nonmember">
+	
+	<resultMap type="NonMemberVO" id="nonmemberResult">
+		<result property="nonmember_code" column="nonmember_code" />
+		<result property="nonmember_id" column="nonmember_id" />
+		<result property="nonmember_pwd" column="nonmember_pwd" />
+		<result property="nonmember_pwd_lock" column="nonmember_pwd_lock" />
+		
+		<result property="nonmember_name" column="nonmember_name" />
+		
+		<result property="nonmember_cp1" column="nonmember_cp1" />
+		<result property="nonmember_cp2" column="nonmember_cp2" />
+		<result property="nonmember_cp3" column="nonmember_cp3" />
+		
+		<result property="nonmember_hp1" column="nonmember_hp1" />
+		<result property="nonmember_hp2" column="nonmember_hp2" />
+		<result property="nonmember_hp3" column="nonmember_hp3" />
+		
+		<result property="nonmember_addr1" column="nonmember_addr1" />
+		<result property="nonmember_addr2" column="nonmember_addr2" />
+		<result property="nonmember_addr3" column="nonmember_addr3" />
+		<result property="nonmember_addr4" column="nonmember_addr4" />
+		
+	</resultMap>
+
+	<insert id="nonmembersignup" parameterType="NonMemberVO">
+		insert into nonmember values(seq_nonmember_id.nextval,
+										#{nonmember_id},
+										#{nonmember_pwd},
+										#{nonmember_pwd_lock},
+										#{nonmember_hp1},
+										#{nonmember_hp2},
+										#{nonmember_hp3},
+										#{nonmember_cp1},
+										#{nonmember_cp2},
+										#{nonmember_cp3},
+										#{nonmember_addr1},
+										#{nonmember_addr2},
+										#{nonmember_addr3},
+										#{nonmember_addr4})
+	</insert>
+	
+	<select id="idoverlap" resultType="String" >
+		select decode(count(*),0,'true','false') from member mvo , nonmember nvo
+		 where nvo.nonmember_id = #{nonmember_id} or mvo.member_id = #{nonmember_id}
+	</select>
+	
+	<select id="loginnonmember" resultMap="nonmemberResult" parameterType="String">
+		select * from nonmember where nonmember_id = #{nonmember_id}
+	</select>
+	
+	<update id="nonmemberupdate">
+		update nonmember set nonmember_hp1 = #{nonmember_hp1} ,
+							 nonmember_hp2 = #{nonmember_hp2} ,
+							 nonmember_hp3 = #{nonmember_hp3} ,
+							 nonmember_cp1 = #{nonmember_cp1} ,
+							 nonmember_cp2 = #{nonmember_cp2} ,
+							 nonmember_cp3 = #{nonmember_cp3} ,
+							 nonmember_addr1 = #{nonmember_addr1} ,
+							 nonmember_addr2 = #{nonmember_addr2} ,
+							 nonmember_addr3 = #{nonmember_addr3} ,
+							 nonmember_addr4 = #{nonmember_addr4})
+	</update>
+</mapper>

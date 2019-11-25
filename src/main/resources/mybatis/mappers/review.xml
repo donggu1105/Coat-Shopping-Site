@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.notice.review">
+
+
+	<resultMap id="reviewImageResult" type="review_ImageVO">
+		<result property="pro_code" column="pro_code" />
+		<result property="review_num" column="review_num" />
+		<result property="review_image_code" column="review_image_code" />
+		<result property="review_imageFileName" column="review_imageFileName" />
+		<result property="review_image_cre_date" column="review_image_cre_date" />
+	</resultMap>
+	
+	
+	<resultMap id="reviewResult" type="reviewVO">
+		<result property="pro_code" column="pro_code" />
+		<result property="review_num" column="review_num" />
+		<result property="pro_name" column="pro_name" />
+		<result property="member_id" column="member_id" />
+		<result property="review_title" column="review_title" />
+		<result property="review_content" column="review_content" />
+		<result property="review_date" column="review_date" />
+		<result property="review_hit" column="review_hit" />
+		<result property="review_replyCount" column="review_replyCount" />
+		<result property="review_star" column="review_star" />
+		<!-- <collection property="review_imageVo" resultMap="reviewImageResult"/> -->
+
+	</resultMap>
+
+	<resultMap id="reviewReplyResult" type="review_ReplyVO">
+		<result property="review_num" column="review_num" />
+		<result property="member_id" column="member_id" />
+		<result property="review_reply_code" column="review_reply_code" />
+		
+		<result property="review_replyContent" column="review_replyContent" />
+		<result property="review_replyDate" column="review_replyDate" />
+	</resultMap>
+
+
+	<!-- 리뷰 리스트&페이징 -->
+	<select id="selectAllReviews" parameterType="java.util.Map"
+		resultMap="reviewResult">
+
+	 <![CDATA[
+			select * from (
+    select ROWNUM as recNum, review_num, member_id, pro_name, review_title, review_date, review_star, review_hit,review_replyCount from(
+       	 select review_num, member_id, pro_name, review_title, review_date, review_star, review_hit,review_replyCount from review 
+       	 order by review_num DESC))
+       	 where recNum between 
+       	 (#{section,jdbcType=NUMERIC}-1)*200+(#{pageNum,jdbcType=NUMERIC}-1)*20+1 and 
+       	 (#{section,jdbcType=NUMERIC}-1)*200+(#{pageNum,jdbcType=NUMERIC}*20)
+		
+		]]>
+	</select>
+	
+	<!-- 리뷰쓰기 -->
+	<insert id="insertArticle" parameterType="java.util.Map">
+
+		INSERT INTO
+		REVIEW VALUES(#{pro_code},review_seq.nextval,
+		#{pro_name}, #{member_id},
+		#{review_title},#{review_content}, sysdate, 0,
+		0,#{review_star})
+	</insert>
+	
+	<!-- 리뷰 글 총갯수 -->
+	<select id="selectBoardCount" resultType="Integer">
+		SELECT
+		COUNT(*) FROM
+		REVIEW
+	</select>
+
+	<!-- 리뷰이미지 삽입 -->
+	<insert id="insertReview_Image" parameterType="review_ImageVO">
+		<selectKey keyProperty="review_image_seq" resultType="int"
+			order="BEFORE">
+			select review_image_seq.nextval from dual
+		</selectKey>
+		insert into review_image
+		(PRO_CODE,REVIEW_NUM,REVIEW_IMAGE_CODE,REVIEW_IMAGEFILENAME,REVIEW_IMAGE_CRE_DATE)
+		values(#{pro_code},#{review_num},#{review_image_seq},#{review_imageFileName},sysdate)
+
+	</insert>
+
+	<!-- 조회수 올리기 -->
+	<update id="hitup">
+		UPDATE REVIEW SET REVIEW_HIT=REVIEW_HIT+1
+		WHERE
+		REVIEW_NUM=#{REVIEW_NUM}
+	</update>
+
+	<!-- 이미지 폴더 관련 -->
+	<select id="selectMaxArticle_number" resultType="int">
+		select
+		max(review_num) from review
+	</select>
+	
+	<!-- 상세보기 -->
+	<select id="selectContent" resultMap="reviewResult">
+		select * from review where
+		review_num=#{review_num}
+	</select>
+	
+	<!-- 이미지 이름찾기 -->
+	<select id="selectReviewImage" resultType="String">
+		select
+		review_imageFileName from review_image i, review r where
+		i.review_num=#{review_num} and r.review_num=#{review_num}
+	</select>
+
+	<!-- 리뷰 삭제 -->
+	<delete id="deleteReview" parameterType="String">
+		delete review where
+		review_num=#{review_num}
+	</delete>
+
+	<!-- 리뷰이미지 삭제 -->
+	<delete id="deleteReviewImage" parameterType="String">
+		delete review_image
+		where review_num=#{review_num}
+	</delete>
+
+	<!-- 댓글 쓰기 -->
+	<insert id="reviewReplyContent" parameterType="java.util.Map">
+
+		INSERT INTO
+		REVIEW_REPLY VALUES(#{review_num}, #{member_id}, seq_review_reply.nextval, 
+		#{review_replyContent}, sysdate)
+
+	</insert>
+	
+	<!-- 리뷰리스트&페이징 -->
+	<select id="selectReviewReply" resultMap="reviewReplyResult">
+		
+		<![CDATA[
+		select * from (select rownum as recNum,  member_id,review_reply_code, review_replyDate, review_replyContent from
+        (select member_id,review_reply_code, review_replyDate, review_replyContent from review_reply where review_num=#{review_num} 
+        order by ${action} desc, review_replyDate desc))
+        where recNum between (#{section,jdbcType=NUMERIC}-1)*50+(#{pageNum,jdbcType=NUMERIC}-1)*5+1 
+		and 
+		(#{section,jdbcType=NUMERIC}-1)*50+#{pageNum,jdbcType=NUMERIC}*5
+		]]>
+	</select>
+	
+	<!-- 각 글의 댓글 갯수 -->
+	<select id="selectReplyCount" resultType="Integer">
+		SELECT
+		COUNT(*) FROM
+		REVIEW_REPLY where review_num=#{review_num}
+	</select>
+	
+	<!-- 댓글 갯수 리뷰테이블에 업뎃 -->
+	<update id="updateReplyCount">
+		update review set review_replyCount=(select count(*)
+		from review_reply
+		where review_num=#{review_num}) where
+		review_num=#{review_num}
+
+	</update>
+	
+	<!-- 리뷰수정 -->
+	<update id="updateArticle">
+		UPDATE REVIEW SET REVIEW_TITLE=#{review_title},
+		REVIEW_CONTENT=#{review_content}
+		WHERE REVIEW_NUM=#{review_num}
+
+	</update>
+	
+	<!-- 리뷰 이미지 수정 -->
+	<update id="updateReviewImage">
+		update review_image set
+		review_imageFileName=#{review_imageFileName} where
+		review_num=#{review_num}
+	</update>
+
+	<!-- 댓글 삭제 -->
+	<delete id="deleteReviewReply">
+		delete review_reply where
+		review_reply_code=#{review_reply_code}
+	</delete>
+	
+	<!-- 각 상품 상세에 리뷰 뽑기 -->
+	<select id="selectPrReviews" resultMap="reviewResult">
+			select r.*, img.review_imageFileName from review r ,review_image img
+   	 		where r.pro_code=#{pro_code} 
+    		and r.review_num=img.review_num order by r.review_num desc
+	</select>
+	
+	<!-- 각 상품의 리뷰 갯수 -->
+	<select id="selectPrCount" resultType="Integer">
+		select count(*) from review r, product p where r.pro_code=#{pro_code} and p.pro_code=#{pro_code}
+	</select>
+	
+	<!-- 별점평균 -->
+	<select id="selectStarAvg" resultType="Integer"> 
+	select ROUND(NVL(AVG(review_star),0)) from review where pro_code=#{pro_code}
+	</select>
+	
+	<!-- 내 리뷰만 -->
+   <select id="selectMyReviews" parameterType="java.util.Map"
+      resultMap="reviewResult">
+    <![CDATA[
+         select * from (
+    select ROWNUM as recNum, review_num, member_id, pro_name, review_title, review_date, review_star, review_hit,review_replyCount from(
+           select review_num, member_id, pro_name, review_title, review_date, review_star, review_hit,review_replyCount from review 
+           where member_id=#{member_id} order by review_num DESC))
+           where recNum between 
+           (#{section,jdbcType=NUMERIC}-1)*200+(#{pageNum,jdbcType=NUMERIC}-1)*20+1 and 
+           (#{section,jdbcType=NUMERIC}-1)*200+(#{pageNum,jdbcType=NUMERIC}*20)
+      
+      ]]>
+   </select>
+   
+   <!-- 내 리뷰 글 총갯수 -->
+   <select id="selectMyBoardCount" resultType="Integer">
+      SELECT
+      COUNT(*) FROM
+      REVIEW where member_id=#{member_id}
+   </select>
+	<select id="selectTotalReview" resultType="int" parameterType="java.util.Map">
+	select count(*) from review where member_id = #{member_id}
+	</select>
+</mapper> 

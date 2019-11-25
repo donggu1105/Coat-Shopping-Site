@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+
+	<definition name="/main/main" extends="baseLayout2">
+		<put-attribute name="title" value="쇼핑몰 메인페이지" />
+		<put-attribute name="body" value="/WEB-INF/views/main/main.jsp" />
+	</definition>
+	
+	<definition name="/main/FindLocation" extends="baseLayout2">
+		<put-attribute name="title" value="찾아오시는 길" />
+		<put-attribute name="body"  value="/WEB-INF/views/main/FindLocation.jsp" />
+	</definition>
+	
+	<definition name="/main/always_asking" extends="baseLayout2">
+			<put-attribute name="title" value="자주 묻는 질문" />
+			<put-attribute name="body" value="/WEB-INF/views/main/always_asking.jsp" />
+		</definition>
+</tiles-definitions>
+
+

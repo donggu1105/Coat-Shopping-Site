@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.member">
+
+   <resultMap id="memberResult" type="MemberVO">
+      <result property="member_code" column="member_code" />
+      <result property="member_id" column="member_id" />
+      <result property="member_pwd" column="member_pwd" />
+      <result property="member_pwd_lock" column="member_pwd_lock" />
+      
+      <result property="member_pwd_q" column="member_pwd_q" />
+      <result property="member_pwd_a" column="member_pwd_a" />
+      <result property="member_name" column="member_name" />
+      
+      <result property="member_gender" column="member_gender" />
+      <result property="member_cp1" column="member_cp1" />
+      <result property="member_cp2" column="member_cp2" />
+      <result property="member_cp3" column="member_cp3" />
+      
+      <result property="member_hp1" column="member_hp1" />
+      <result property="member_hp2" column="member_hp2" />
+      <result property="member_hp3" column="member_hp3" />
+      <result property="member_cp_yn" column="member_cp_yn" />
+      <result property="member_email1" column="member_email1" />
+      <result property="member_email2" column="member_email2" />
+      <result property="member_email_yn" column="member_email_yn" />
+      
+      <result property="member_addr1" column="member_addr1" />
+      <result property="member_addr2" column="member_addr2" />
+      <result property="member_addr3" column="member_addr3" />
+      <result property="member_addr4" column="member_addr4" />
+      
+      <result property="member_birth_y" column="member_birth_y" />
+      <result property="member_birth_m" column="member_birth_m" />
+      <result property="member_birth_d" column="member_birth_d" />
+      <result property="member_birth_sl" column="member_birth_sl" />
+      
+      <result property="member_cre_date" column="member_cre_date" />
+      <result property="member_point" column="member_point" />
+      <result property="member_rank" column="member_rank" />
+   </resultMap>
+   
+   <resultMap id="memberDetailResult" type="MemberDetailVO">
+      <result property="member_code" column="member_code" />
+      <result property="discount_per" column="discount_per" />
+      <result property="discount_won" column="discount_won" />
+      <result property="cpon_name" column="cpon_name" />
+      <result property="cpon_cre_date" column="cpon_cre_date" />
+      <result property="cpon_del_date" column="cpon_del_date" />
+   
+   </resultMap>
+      
+      
+   <insert id="signupMember">
+      <![CDATA[
+         insert into member values(   seq_member_id.nextval,
+                              #{member_id,jdbcType=VARCHAR},
+                              #{member_pwd,jdbcType=VARCHAR},
+                              #{member_pwd_lock,jdbcType=VARCHAR},
+                              #{member_pwd_q,jdbcType=VARCHAR},
+                              #{member_pwd_a,jdbcType=VARCHAR},
+                              #{member_name,jdbcType=VARCHAR},
+                              #{member_gender,jdbcType=VARCHAR},
+                              #{member_cp1,jdbcType=VARCHAR},
+                              #{member_cp2,jdbcType=VARCHAR},
+                              #{member_cp3,jdbcType=VARCHAR},
+                              #{member_hp1,jdbcType=VARCHAR},
+                              #{member_hp2,jdbcType=VARCHAR},
+                              #{member_hp3,jdbcType=VARCHAR},
+                              #{member_cp_yn,jdbcType=VARCHAR},
+                              #{member_email1,jdbcType=VARCHAR},
+                              #{member_email2,jdbcType=VARCHAR},
+                              #{member_email_yn,jdbcType=VARCHAR},
+                              #{member_addr1,jdbcType=VARCHAR},
+                              #{member_addr2,jdbcType=VARCHAR},
+                              #{member_addr3,jdbcType=VARCHAR},
+                              #{member_addr4,jdbcType=VARCHAR},
+                              #{member_birth_y,jdbcType=VARCHAR},
+                              #{member_birth_m,jdbcType=VARCHAR},
+                              #{member_birth_d,jdbcType=VARCHAR},
+                              #{member_birth_sl,jdbcType=VARCHAR},
+                              default,
+                              500,
+                              '신입',
+                              SYSDATE,
+                              0,
+                              0,
+                              0,
+                              0)
+      ]]>
+   </insert>
+   
+   <select id="loginMember" resultType="MemberVO">
+      <![CDATA[
+         select * from member where member_id= #{member_id}
+      ]]>
+   </select>
+   
+   <select id="idoverlap" resultType="String">
+      <![CDATA[
+         select decode(count(*),0,'true','false') from member mvo , nonmember nvo where
+          mvo.member_id like #{param1} or nvo.nonmember_id like #{param1}
+      ]]>   
+   </select>
+   
+   <update id="memberupdate">
+   
+      <![CDATA[
+         update member set    member_pwd_q = #{member_pwd_q} ,
+                        member_pwd_a = #{member_pwd_a} ,
+                        member_hp1 = #{member_hp1} ,
+                        member_hp2 = #{member_hp2} ,
+                        member_hp3 = #{member_hp3} ,
+                        member_cp1 = #{member_cp1} ,
+                        member_cp2 = #{member_cp2} ,
+                        member_cp3 = #{member_cp3} ,
+                        member_email1 = #{member_email1} ,
+                        member_email2 = #{member_email2} ,
+                        member_addr1 = #{member_addr1},
+                        member_addr2 = #{member_addr2},
+                        member_addr3 = #{member_addr3},
+                        member_addr4 = #{member_addr4}
+                        where member_code = #{member_code}
+      ]]>
+   </update>
+   
+   <delete id="secession" parameterType="map">
+      delete
+      <if test="table.equals('member')">
+         member</if>
+      <if test="table.equals('nonmember')">
+         nonmember</if> 
+       where 
+       <if test="column.equals('member_code')">
+          member_code</if>
+       <if test="column.equals('nonmember_code')">
+          nonmember_code</if>
+        = #{code}
+   </delete>
+   
+   <select id="selectMemberDetail" resultMap="memberDetailResult" parameterType="int">
+      select * from member_detail where member_code=#{member_code}
+   </select>
+   
+   <select id="selectAllCoupons" parameterType="int" resultType="int">
+      select count(cpon_name) from member_detail where member_code= #{member_code}
+   </select>
+    <update id="updateRecentLogin" parameterType="String">
+   	update member set member_lately_date = SYSDATE where member_id = #{member_id}
+   </update>
+   
+   <select id="selectTotalLogin" parameterType="String" resultType="int">
+	select member_total_login from member where member_id=#{member_id}   
+   </select>
+   
+   <update id="updateTotalLogin" parameterType="java.util.Map">
+   	update member set member_total_login = #{total_login}+1 where member_id = #{member_id}
+   </update>
+   <update id="updateMemberOrder" parameterType="java.util.Map">
+   	update member set member_total_buy= #{order_member_total_buy}+#{order_price}, 
+   					  member_total_order= #{order_member_total_order}+1, 
+   					  member_saving= #{member_saving}+#{order_saving}-#{discount_saving}, 
+   					  member_point= #{member_point}-#{discount_point}
+   					  where member_code=#{order_member_code}
+   </update>
+   
+</mapper> 

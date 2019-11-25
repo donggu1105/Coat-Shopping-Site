@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+	<mapper namespace="mapper.notice_qna">
+	
+	<resultMap id="qnaNotice" type="QnAVO">
+
+		<result property="q_index" column="q_index" />
+		<result property="q_title" column="q_title" />
+		<result property="q_option" column="q_option" />
+		<result property="member_id" column="member_id" />
+		<result property="q_content" column="q_content" />
+		<result property="q_file" column="q_file" />
+		<result property="q_hit" column="q_hit" />
+		<result property="q_date" column="q_date" />
+		<result property="q_group" column="q_group" />
+		<result property="q_step" column="q_step" />
+		<result property="q_indent" column="q_indent" />
+
+	</resultMap>
+	
+		<!--리스트,페이징 -->
+		<select id="qnalist" parameterType="map" resultType="QnAVO">
+				select q.* from(
+				select count(*) over() as total_count,
+				qlist.*from(
+				select row_number() over(order by q_group desc , q_step asc)qnum,
+				q_index,q_title,q_option,member_id,q_hit,q_date,q_group,q_step,q_indent
+				from q_notice
+				)qlist
+				)q
+				where q.qnum between 
+				(#{page}-1) * #{displayRowCount}+1 and #{page} * #{displayRowCount}
+				order by q_group desc
+		</select>
+		
+		<!-- 총 게시물 갯수 -->
+		<select id="selectBoardCount" parameterType="map"  resultType="Integer">
+			SELECT COUNT(*) FROM Q_NOTICE
+		</select>
+		
+		<!-- 글작성 , 공지사항 최상단 -->
+		<insert id="write">
+			INSERT INTO Q_NOTICE(Q_INDEX,Q_TITLE,Q_OPTION,MEMBER_ID,Q_CONTENT,Q_FILE,Q_HIT,
+			Q_DATE,Q_GROUP,Q_STEP,Q_INDENT,Q_ADMIN)
+			VALUES(QNOTICE_SEQ.NEXTVAL,
+			#{q_title},
+			#{q_option},
+			#{member_id}, 
+			#{q_content},
+			#{q_file},
+			0,
+			SYSDATE,
+			<choose>
+				<when test="member_id.equals('admin')">seq_notice_qna_admin_id.nextval</when>
+				<otherwise>QNOTICE_SEQ.CURRVAL</otherwise>
+			</choose>
+			,0,0,
+			<choose>
+				<when test="member_id.equals('admin')">1</when>
+											<otherwise>0</otherwise>
+			</choose>
+			)
+		</insert>
+		
+		<!-- 상세보기 -->
+		<select id="content_view" resultMap="qnaNotice">
+			SELECT Q_INDEX,Q_TITLE,Q_OPTION,MEMBER_ID,Q_CONTENT,Q_FILE,Q_HIT,
+			Q_DATE,Q_GROUP,Q_STEP,Q_INDENT  
+			FROM Q_NOTICE WHERE Q_INDEX=#{Q_INDEX}
+		</select>
+		
+		<!-- 수정 -->
+		<update id="modify">
+			UPDATE Q_NOTICE SET 
+			Q_TITLE=#{q_title},
+			Q_OPTION=#{q_option},
+			Q_CONTENT=#{q_content},
+			Q_FILE=#{q_file}
+			WHERE Q_INDEX=#{q_index}
+		</update>
+		
+<!-- 		resultMap="qnaNotice" -->
+
+		<!-- 수정이미지 -->
+		<update id="modifyImage">
+			update q_notice set
+			q_file=#{q_file} where q_index=#{q_index}
+		</update>
+		
+		<!-- 이미지 폴더 -->
+		<select id="selectMaxwrite_number" resultType="int">
+			select max(q_index) from q_notice
+		</select>
+		
+		<!-- qna 삭제 , 답글~다답글 삭제 -->
+		<delete id="delete" parameterType="map">
+		<![CDATA[
+		delete q_notice where 
+ 		q_group = #{q_group} and 
+		q_step >= #{q_step} and q_indent >= #{q_indent}
+		]]>
+		</delete>
+		
+		<!-- 답글등록 -->
+		<insert id="reply" parameterType="java.util.Map">
+			INSERT INTO Q_NOTICE(Q_INDEX,Q_TITLE,Q_OPTION,member_id,Q_CONTENT,Q_HIT,
+			Q_GROUP,Q_STEP,Q_INDENT) VALUES(
+			QNOTICE_SEQ.NEXTVAL,
+			#{q_title},
+			#{q_option},
+			#{member_id},
+			#{q_content},
+			0,
+			#{q_group},#{q_step}+1,#{q_indent}+1)
+		</insert>
+		
+		<!-- 답글보기 -->
+		<select id="reply_view" resultMap="qnaNotice">
+			SELECT * FROM Q_NOTICE WHERE Q_INDEX=#{Q_INDEX}
+		</select>
+		
+		<!-- 조회수 -->
+		<update id="hit">
+			UPDATE Q_NOTICE SET Q_HIT=Q_HIT+1 WHERE Q_INDEX=#{Q_INDEX}
+		</update>
+		
+		<!-- 답글이 달리면 q_step , q_indent가 늘어남 -->
+		<update id="reply_Shape">
+		<![CDATA[
+			UPDATE Q_NOTICE SET Q_STEP=Q_STEP+1 WHERE Q_GROUP=#{Q_GROUP} AND Q_STEP
+			>#{Q_STEP}
+		]]>
+		</update>
+		
+		<!-- 내 문의사항 -->
+		<select id="selectMyqnaview" parameterType="map"
+		resultType="QnAVO">
+			select q.* from(
+				select count(*) over() as total_count,
+				qlist.*from(
+				select row_number() over(
+				order by q_group desc , q_step asc)qnum,
+				q_index,q_title,q_option,member_id,q_hit,q_date,q_group,q_step,q_indent
+				from q_notice where member_id=#{member_id} 
+				)qlist
+				)q
+				where q.qnum between 
+				(#{page}-1) * #{displayRowCount}+1 and #{page} * #{displayRowCount}
+				order by q_group desc
+		</select>
+		
+		<!-- 내 문의사항 글 총갯수 -->
+		<select id="selectMyqnaBoardCount" resultType="Integer">
+			SELECT COUNT(*) FROM Q_NOTICE WHERE MEMBER_ID=#{member_id}
+		</select>
+		
+		<select id="selectTotalQna" resultType="int" parameterType="java.util.Map">
+	select count(*) from q_notice where member_id = #{member_id}
+	</select>
+	</mapper>

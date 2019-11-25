@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="mapper.product">
+
+   <resultMap id="productResult" type="ProductVO">
+
+      <result property="pro_code" column="pro_code" />
+      <result property="pro_name" column="pro_name" />
+      <result property="pro_price" column="pro_price" />
+      <result property="pro_sale" column="pro_sale" />
+
+      <result property="pro_salesrate" column="pro_salesrate" />
+      <result property="pro_count" column="pro_count" />
+      <result property="pro_category" column="pro_category" />
+
+      <result property="pro_category_detail" column="pro_category_detail" />
+      <result property="pro_input_date" column="pro_input_date" />
+      <result property="pro_content" column="pro_content" />
+      <result property="pro_grade" column="pro_grade" />
+
+      <result property="pro_country" column="pro_country" />
+      <result property="pro_material" column="pro_material" />
+      <result property="pro_prec" column="pro_prec" />
+      <result property="pro_imageFilename" column="pro_imageFilename" />
+
+   </resultMap>
+
+   <resultMap type="ProductDetailVO" id="productdetailResult">
+      <result property="pro_code" column="pro_code" />
+      <result property="pro_size" column="pro_size" />
+      <result property="pro_color" column="pro_color" />
+      <result property="pro_quantity" column="pro_quantity" />
+      <result property="pro_category_detail" column="pro_category_detail" />
+      <result property="pro_restocked_date" column="pro_restocked_date" />
+      <result property="pro_restocked_yn" column="pro_restocked_yn" />
+   </resultMap>
+
+   <resultMap  type="ImageFileVO" id="productImageResult" >
+
+      <result property="pro_code" column="pro_code" />
+      <result property="pro_image_code" column="pro_image_code" />
+      <result property="pro_imageFileName" column="pro_imageFileName" />
+      <result property="pro_imageFileType" column="pro_imageFileType" />
+      <result property="pro_register" column="pro_register" />
+      <result property="pro_image_cre_date" column="pro_image_cre_date" />
+
+   </resultMap>
+
+    <select id="productlist" resultType="ProductVO" parameterType="map">
+         select pd.* , c.* from (select pro_code , pro_color from product_detail group by pro_code , pro_color) pd ,(
+      select b.* from 
+      (select a.* , rownum as rnum from 
+       (select  pd.pro_category_detail, p.pro_code , p.pro_name , p.pro_price , p.pro_sale , p.pro_status ,
+       p.pro_grade , p.pro_count , p.pro_salesrate , p.pro_input_date, p_img.pro_imagefilename , p.pro_price - p.pro_price * (p.pro_sale * 0.01) pro_sale_price 
+       from
+       product p, product_image p_img ,(select pro_code , pro_category_detail from product_detail
+       <if test="pro_color != null">
+       where 
+       pro_color like #{pro_color}
+       </if>
+        group by pro_code ,pro_category_detail) pd
+       where   
+        p_img.pro_code = p.pro_code and p_img.pro_imagefilename like '%main%' and
+       p.pro_code = pd.pro_code and pd.pro_category_detail like #{keyword_detail}
+       and p.pro_status like #{pro_status}
+       <if test="keyword2 !=null and !keyword2.equals('')" >
+           and p.pro_name like '%'|| #{keyword2} ||'%' 
+      </if>
+       
+       
+       <if test="min_price != 0">
+       and p.pro_price - p.pro_price * (p.pro_sale * 0.01) 
+             between #{min_price} and #{max_price}
+       </if>
+       order by 
+       <choose>
+         <when test="list_type.equals('price_asc')">pro_sale_price asc</when>
+         <when test="list_type.equals('price_desc')">pro_sale_price desc</when>
+         <when test="list_type.equals('input_asc')">p.pro_input_date asc</when>
+         <when test="list_type.equals('input_desc')">p.pro_input_date desc</when>
+         <when test="list_type.equals('name_asc')">p.pro_name asc</when>
+         <when test="list_type.equals('count_desc')">p.pro_count desc</when>
+         <otherwise>
+                p.pro_code asc
+         </otherwise>
+       </choose>
+      
+        ) a ) b where b.rnum between 
+         (#{pagenum}-1) * #{displayproduct} + 1 and (#{pagenum}-1) * #{displayproduct} + #{displayproduct}
+        ) c
+         where
+          pd.pro_code = c.pro_code 
+          order by 
+       <choose>
+         <when test="list_type.equals('price_asc')">c.pro_sale_price asc</when>
+         <when test="list_type.equals('price_desc')">c.pro_sale_price desc</when>
+         <when test="list_type.equals('input_asc')">c.pro_input_date asc</when>
+         <when test="list_type.equals('input_desc')">c.pro_input_date desc</when>
+         <when test="list_type.equals('name_asc')">c.pro_name asc</when>
+         <when test="list_type.equals('count_desc')">c.pro_count desc</when>
+         <otherwise>
+                c.pro_code asc
+         </otherwise>
+       </choose>
+   </select>
+   
+   <select id="productlist_count" parameterType="map"
+      resultType="java.lang.Integer">
+            select max(rownum) from product p ,
+               (select pro_category_detail , pro_code from product_detail
+               <if test="pro_color != null">
+                where 
+                pro_color like #{pro_color}
+                </if>
+                group by pro_code, pro_category_detail order by pro_code) pd
+               where p.pro_category like #{keyword} and 
+               pd.pro_category_detail like #{keyword_detail} and p.pro_status like #{pro_status}
+               and p.pro_code = pd.pro_code 
+               
+               <if test="keyword2 != null and !keyword2.equals('')">
+                  and p.pro_name like '%'|| #{keyword2} ||'%'
+               </if>
+               <if test="min_price != 0">
+                and p.pro_price - p.pro_price * (p.pro_sale * 0.01) 
+                <choose>
+                <when test="min_price == 140000"> >= #{min_price}</when>
+                <otherwise>   between #{min_price} and #{max_price}</otherwise>
+                </choose>
+                </if>
+   </select>
+	
+   <select id="product" parameterType="java.lang.Integer"
+      resultType="ProductVO">
+      select * from product where pro_code = #{pro_code}
+   </select>
+   <select id="productdetail" resultType="ProductDetailVO">
+      select * from product_detail where pro_code = #{pro_code}
+   </select> 
+   
+   <select id="productimage" parameterType="java.lang.Integer"
+         resultType="ImageFileVO">
+      select pro_imageFileName , pro_imageFileType from product_image 
+         where pro_code = #{pro_code}
+   </select>
+   
+   <update id="productcount"  parameterType="java.lang.Integer">
+   <![CDATA[
+      update product set pro_count = pro_count + 1 where pro_code = #{pro_code}
+   ]]>
+   </update>
+   
+   <select id="quantity_check" parameterType="java.util.Map"
+      resultType="String">
+      select decode(pro_quantity,0,'false','true') from product_detail 
+         where pro_color = '${color}' and pro_size = '${size}' and pro_code = #{pro_code} 
+   </select>
+   
+   <select id="productDetail_code" parameterType="map"
+   resultType="java.lang.Integer" >
+   	select pro_detail_code from product_detail where
+   	pro_code = #{pro_code} and pro_color = '${color}' and pro_size = '${size}'
+   </select>
+   
+   <select id="selectOrder_pro_name_list" parameterType="java.util.Map" resultMap="productResult">
+      select pro_name from product
+      where pro_code in (
+      <foreach collection="order_pro_code_list" item="pro_name" separator=",">
+         #{pro_code}      
+      </foreach>
+      )
+   </select>
+   
+   <select id="getOptions" parameterType="java.lang.Integer"
+   resultType="ProductDetailVO">
+   		select pro_color,pro_size from product_detail where pro_code = #{pro_code}
+   </select>
+   
+   <select id="get_Pro_Detail_Code" parameterType="map"
+   resultType="String">
+   	select pro_detail_code from product_detail where pro_code = #{pro_code} 
+   	and pro_color = #{pro_color} and pro_size = #{pro_size}
+   </select>
+   
+    <!-- 리뷰관련 -->
+   <select id="selectAllProducts" resultMap="productResult">
+	SELECT PRO_CODE, PRO_NAME, PRO_PRICE FROM PRODUCT ORDER BY PRO_CODE ASC
+	</select>
+   
+</mapper> 

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+	<mapper namespace="mapper.cart">
+		<resultMap type="CartVO" id="CartResult">
+			<result property="cart_pro_code" column="cart_pro_code"/>
+			<result property="cart_member_code" column="cart_member_code"/>
+			<result property="cart_nonmember_code" column="cart_nonmember_code"/>
+			<result property="cart_pro_quantity" column="cart_pro_quantity"/>
+			<result property="cart_pro_color" column="cart_pro_color"/>
+			<result property="cart_pro_size" column="cart_pro_size"/>
+			<result property="cart_pro_price" column="cart_pro_price"/>
+		</resultMap>
+		
+		
+
+		<insert id="addcart" parameterType="CartVO">
+			insert into cart values(#{cart_pro_code},
+									#{cart_pro_detail_code},
+									<choose>
+										<when test="cart_member_code == 0">null,</when>
+										<otherwise>#{cart_member_code},</otherwise>
+									</choose>
+									<choose>
+										<when test="cart_nonmember_code == 0">null,</when>
+										<otherwise>#{cart_nonmember_code},</otherwise>
+									</choose>									
+									#{cart_pro_quantity},
+									#{cart_pro_color},
+									#{cart_pro_size},
+									#{cart_pro_price})
+		</insert>
+		
+		<update id="AddOverlapCart" parameterType="CartVO">
+			update cart set cart_pro_quantity = cart_pro_quantity + #{cart_pro_quantity} where cart_pro_code = #{cart_pro_code}
+				and cart_pro_color = #{cart_pro_color} and cart_pro_size = #{cart_pro_size}
+		</update>
+		
+			
+		<select id="cartlist" parameterType="map" 
+            resultType="CartVO">
+         select cart.* , img.pro_imagefilename , p.pro_name from (select c.* from cart c where 
+				<if test="table.equals('member')">
+					c.cart_member_code  </if>
+				<if test="table.equals('nonmember')">
+					c.cart_nonmember_code  </if>
+					= #{code} order by c.cart_pro_detail_code) cart ,
+			 product_image img , product p
+				where cart.cart_pro_code = img.pro_code and img.pro_imagefilename like '%main%'
+				and cart.cart_pro_code = p.pro_code 
+				<if test="cart_pro_detail_code !=null ">
+				and cart.cart_pro_detail_code =#{cart_pro_detail_code}
+				</if>
+				<if test="order_pro_detail_code_list !=null">
+				and cart.cart_pro_detail_code in (
+				 <foreach collection="order_pro_detail_code_list" item="pro_detail_code" separator=",">
+				 #{pro_detail_code.value}
+				 </foreach>
+				 )
+				</if>
+      </select>
+      
+      
+		<select id="cart_overlap" parameterType="map" resultType="String">
+			select decode(count(*),0,'true','false') from cart where
+			cart_pro_detail_code = #{pro_detail_code} and
+			<if test="col.equals('member')">
+			cart_member_code = </if>
+			<if test="col.equals('nonmember')">
+			cart_nonmember_code =</if> #{code}
+		</select>
+		
+		<delete id="DeleteCart" parameterType="map">
+		delete from cart where cart_pro_detail_code in (
+			<foreach collection="pro_detail_code_list" item="cart_pro_detail_code" separator=",">
+				 #{cart_pro_detail_code}
+			</foreach>
+			)	and
+				<if test="col.equals('member')">cart_member_code </if> 
+				<if test="col.equals('nonmember')">cart_nonmember_code </if>
+				= #{code} 
+		</delete>
+		
+		<update id="updatecart" parameterType="map">
+			update cart set cart_pro_quantity = #{quantity} , cart_pro_detail_code = #{pro_detail_code}
+			 where cart_pro_detail_code = 
+			 <choose>
+				<when test="action.equals('추가')">#{pro_detail_code}</when>		 
+				<otherwise>#{origin_pro_detail_code}</otherwise>
+			 </choose>
+			and 
+			<if test="col.equals('member')"> cart_member_code</if>
+			<if test="col.equals('nonmember')">cart_nonembmer_code</if>
+			= #{code}
+		</update>
+		
+		<select id="totalprice" parameterType="map" resultType="Integer">
+			select sum(cart_pro_price * cart_pro_quantity) from cart where
+			<if test="table.equals('member')">cart_member_code</if>
+			<if test="table.equals('nonmember')">cart_nonmember_code</if>
+			= #{code}
+		</select>
+		
+		<select id="ChangeTarget_QuantityCheck" parameterType="map"
+		resultType="java.lang.Integer">
+		select cart_pro_quantity + 1 from cart where 
+		<if test="col.equals('member')">
+			cart_member_code </if>
+			<if test="col.equals('nonmember')">
+			cart_nonmember_code </if>
+			=#{code} and cart_pro_detail_code = #{pro_detail_code}
+		</select>	
+		
+		<update id="allupdateCart" parameterType="map">
+			update cart set cart_pro_detail_code = #{pro_detail_code} ,
+			    			cart_pro_quantity    = #{quantity},
+			    			cart_pro_color  	 = '${color}',
+			    			cart_pro_size 		 = '${size}'
+			where cart_pro_detail_code = #{origin_pro_detail_code} and
+			<if test="col.equals('member')">cart_member_code </if>
+			<if test="col.equals('nonmember')">cart_nonmember_code </if>
+			 = #{code}
+		</update>
+		
+		
+		<select id="flagInCart" parameterType="int" resultType="String">
+			select decode(count(cart_pro_code),0,'false','true') from cart where cart_member_code=#{member_code}
+		</select>
+		<select id="onCart" parameterType="int" resultType="String">
+			select count(cart_pro_code) from cart where cart_member_code=#{member_code}
+		</select>
+		
+		<select id="cartListByMember_code" resultType="CartVO" parameterType="int">
+		select c.*, img.pro_imageFileName, p.pro_name from cart c , product_image img, product p
+			where c.cart_pro_code = img.pro_code 
+			and img.pro_imagefiletype like '%main%' 
+			and c.cart_pro_code = p.pro_code
+            and c.cart_member_code= #{member_code}
+		</select>
+	</mapper>

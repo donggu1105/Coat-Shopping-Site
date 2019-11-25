@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+ <mapper namespace="mapper.admin.order">
+<resultMap id="orderResult" type="OrderVO">
+		<result property="order_code" column="order_code" />
+		<result property="order_member_id" column="order_member_id" />
+		<result property="order_member_name" column="order_member_name" />
+		<result property="order_pro_quantity" column="order_pro_quantity" />
+		<result property="order_price" column="order_price" />
+		<result property="order_discount" column="order_discount" />
+		
+		<result property="receiver" column="receiver" />
+		<result property="receiver_hp1" column="receiver_hp1" />
+		<result property="receiver_hp2" column="receiver_hp2" />
+		<result property="receiver_hp3" column="receiver_hp3" />
+		<result property="receiver_tel1" column="receiver_tel1" />
+		<result property="receiver_tel2" column="receiver_tel2" />
+		<result property="receiver_tel3" column="receiver_tel3" />
+		
+		<result property="delivery_addr1" column="delivery_addr1" />
+		<result property="delivery_addr2" column="delivery_addr2" />
+		<result property="delivery_addr3" column="delivery_addr3" />
+		<result property="delivery_addr4" column="delivery_addr4" />
+		<result property="delivery_how" column="delivery_how" />
+		<result property="delivery_status" column="delivery_status" />
+		
+		<result property="request_to_delivery" column="request_to_delivery" />
+		
+		<result property="who_pay" column="who_pay" />
+		<result property="how_pay" column="how_pay" />
+		<result property="which_bank" column="which_bank" />
+		<result property="company_name_of_card" column="company_name_of_card" />
+		<result property="card_split" column="card_split" />
+		<result property="date_pay" column="date_pay" />
+		
+		<result property="order_pro_detail_code" column="order_pro_detail_code" />
+		<result property="order_member_code" column="order_member_code" />
+		<result property="order_nonmember_code" column="order_nonmember_code" />
+
+	</resultMap>
+	
+	<resultMap id="refundResult" type="RefundVO">
+		<result property="refund_code" column="refund_code" />
+		<result property="refund_name" column="refund_name" />
+		<result property="refund_reason" column="refund_reason" />
+		<result property="refund_accept_YN" column="refund_accept_YN" />
+		<result property="refund_accept_date" column="refund_accept_date" />
+		<result property="refund_date" column="refund_date" />
+		<result property="how_refund" column="how_refund" />
+		<result property="pro_detail_code" column="pro_detail_code" />
+		<result property="order_code" column="order_code" />
+
+	</resultMap>
+	<select id="selectTotalOrders" resultType="int">
+		select count(*) from order_info
+	</select>
+	<select id="selectAllOnDelivery" resultType="int" parameterType="String">
+		select count(*) from order_info where delivery_status=#{param1}
+	</select>
+	
+	<select id="seletAllTotDoneDelivery" resultType="int" parameterType="String">
+		select count(*) from order_info where delivery_status=#{param1}
+	</select>
+
+	<select id="selectOrderList" resultType="OrderVO" parameterType="map">
+		select a.*, img.pro_imagefilename , p.pro_name from 
+			(select rownum rn,order_code , date_pay , order_pro_quantity , order_price , delivery_status , how_pay, order_member_name,request_to_delivery,
+			delivery_how, which_bank, company_name_of_card, order_pro_detail_code,
+			pd.pro_code , pd.pro_color , pd.pro_size
+			from order_info o , product_detail pd 
+			where o.order_pro_detail_code = pd.pro_detail_code 
+			 <choose>
+			 	<when test="order_code != null">
+			 	 and o.order_code = #{order_code}
+			 	</when>
+			 	<otherwise></otherwise>
+			 </choose>
+			   <if test="direct_delivery_status !=null">
+       			and o.delivery_status=#{direct_delivery_status}
+       			 </if>
+       			  <if test="delivery_status !=null and total ==null and !delivery_status.equals('all') and !delivery_status.equals('')">
+	 			  and o.delivery_status=#{delivery_status}        
+        		</if> 
+        		  <if test="delivery_how !=null and !delivery_how.equals('') ">
+	  			 and o.delivery_how=#{delivery_how}        
+        			</if>
+        		<if test="order_member_name !=null">
+       			 and o.order_member_name like '%'||#{order_member_name}||'%' 
+        		</if>
+        		<if test="how_pay !=null and !how_pay.equals('') ">
+        		 and o.how_pay=#{how_pay}    
+        		</if>
+        		<if test="how_pay2 !=null and !how_pay2.equals('') and !how_pay2.equals('모든카드') and !how_pay2.equals('모든은행')  ">
+        			<choose>
+        				<when test="how_pay2_way.equals('card')">
+        					and o.company_name_of_card=#{how_pay2}  
+        				</when>
+        				<when test="how_pay2_way.equals('bank')">
+        					and o.which_bank=#{how_pay2}
+        				</when>
+        			</choose>
+        		</if>
+        	
+			 ) a
+			, product_image img , product p  where img.pro_code = a.pro_code and img.pro_imagefilename like '%main%'
+			and p.pro_code = a.pro_code and rn between 
+			(#{section,jdbcType=NUMERIC}-1)*100+(#{pageNum,jdbcType=NUMERIC}-1)*10+1 
+		and (#{section,jdbcType=NUMERIC}-1)*100+#{pageNum,jdbcType=NUMERIC}*10
+		
+		<if test="order_price !=null and !order_price.equals('')">
+        	<choose>
+				<when test="order_price.equals('price_desc')">
+					 order by a.order_price DESC
+				</when>        	
+				<when test="order_price.equals('price_asc')">
+					 order by a.order_price ASC
+				</when>        	
+        	</choose>
+        </if>
+	</select>
+	
+	<update id="updateDelivery" parameterType="java.util.Map">
+		update order_info set delivery_status =#{change_delivery_status} where order_pro_detail_code =#{change_detail_code}
+	</update>
+	
+	<select id="selectedTotal" parameterType="java.util.Map" resultType="int">
+		select count(*) from order_info where order_member_code > 0
+		 <choose>
+			 	<when test="order_code != null">
+			 	 and order_code = #{order_code}
+			 	</when>
+			 	<otherwise></otherwise>
+			 </choose>
+			   <if test="direct_delivery_status !=null">
+       			and delivery_status=#{direct_delivery_status}
+       			 </if>
+       			  <if test="delivery_status !=null and total !=null and !delivery_status.equals('all') and !delivery_status.equals('')">
+	 			  and delivery_status=#{delivery_status}        
+        		</if> 
+        		  <if test="delivery_how !=null and !delivery_how.equals('') ">
+	  			 and delivery_how=#{delivery_how}        
+        			</if>
+        		<if test="order_member_name !=null">
+       			 and order_member_name like '%'||#{order_member_name}||'%' 
+        		</if>
+        		<if test="how_pay !=null and !how_pay.equals('') ">
+        		 and how_pay=#{how_pay}    
+        		</if>
+        		<if test="how_pay2 !=null and !how_pay2.equals('')">
+        			<choose>
+        				<when test="how_pay2_way.equals('card')">
+        					and company_name_of_card=#{how_pay2}  
+        				</when>
+        				<when test="how_pay2_way.equals('bank')">
+        					and which_bank=#{how_pay2}
+        				</when>
+        			</choose>
+        		</if>
+	
+	</select>
+	
+	<select id="getTotalAvenue" resultType="int">
+		select sum(order_pro_quantity * order_price) from order_info
+	</select>
+	
+	
+	<select id="getTotalOrderCount" resultType="int">
+		select count(distinct order_code) from order_info
+	</select>
+	
+	<delete id="deleteOrder" parameterType="java.util.Map">
+	delete order_info where order_code = #{order_code} and order_pro_detail_code=#{pro_detail_code}	
+	
+	</delete>
+	
+	<update id="setUpRefund" parameterType="java.util.Map">
+	update order_info set delivery_status = #{waitingRefund} where order_code =#{order_code} and order_pro_detail_code=#{pro_detail_code}	
+	</update>
+	
+	<insert id="insertRefund" parameterType="java.util.Map">
+	insert into refund values 
+	(seq_refund_id.nextval, #{refund_name},null,default,SYSDATE,SYSDATE,null,#{pro_detail_code},#{order_code})
+		
+	</insert>
+	
+	<select id="selectAllWaitingRefund" resultType="int" parameterType="String">
+		select count(*) from order_info where delivery_status=#{param1}
+	</select>
+	
+	<select id="selectAllDoneRefund" resultType="int" parameterType="String">
+		select count(*) from order_info where delivery_status=#{param1}
+	</select>
+	
+	<select id="atLeastOneOrder" resultType="String" >
+		select decode (count(*),0,'false','true') from order_info
+	</select>
+</mapper> 

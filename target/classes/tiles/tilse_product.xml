@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+       
+     <tiles-definitions>
+       	<definition name="/product/productlist" extends="baseLayout">
+       		<put-attribute name="title" value="CodeName" />
+       		<put-attribute name="body" value="/WEB-INF/views/product/productlist.jsp" />
+       	</definition>
+		
+		<definition name="/product/productdetail" extends="baseLayout2">
+			<put-attribute name="title" value="상품 상세정보" />
+			<put-attribute name="body" value="/WEB-INF/views/product/productdetail.jsp" />
+		</definition>       	
+       	
+      </tiles-definitions>
+      

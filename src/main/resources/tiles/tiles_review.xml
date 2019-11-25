@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+<!-- 	<definition name="baseLayout"
+		template="/WEB-INF/views/common/layout.jsp">
+		<put-attribute name="title" value="레이아웃 페이지" />
+		<put-attribute name="header" value="/WEB-INF/views/common/header.jsp" />
+		<put-attribute name="side" value="/WEB-INF/views/common/side.jsp" />
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/common/footer.jsp" />
+	</definition>
+ -->
+	<definition name="/notice/review/list" extends="baseLayout2">
+		<put-attribute name="title" value="리뷰게시판 목록" />
+		<put-attribute name="body" value="/WEB-INF/views/notice/review/list.jsp" />
+	</definition>
+	
+	<definition name="/notice/review/contentView" extends="baseLayout2">
+		<put-attribute name="title" value="리뷰게시판 상세보기" />
+		<put-attribute name="body" value="/WEB-INF/views/notice/review/contentView.jsp" />
+	</definition>
+	
+	<definition name="/notice/review/write_view" extends="baseLayout2">
+		<put-attribute name="title" value="리뷰게시판 글쓰기" />
+		<put-attribute name="body" value="/WEB-INF/views/notice/review/write_view.jsp" />
+	</definition>
+	
+	<definition name="/notice/review/buylist" extends="baseLayout2">
+		<put-attribute name="title" value="구매목록" />
+		<put-attribute name="body" value="/WEB-INF/views/notice/review/buylist.jsp" />
+	</definition>
+	
+	<definition name="/notice/review/modify_view" extends="baseLayout2">
+		<put-attribute name="title" value="내글수정" />
+		<put-attribute name="body" value="/WEB-INF/views/notice/review/modify_view.jsp" />
+	</definition>
+	
+	
+	<definition name="/notice/review/myReviewList" extends="baseLayout2">
+		<put-attribute name="title" value="내글수정" />
+		<put-attribute name="body" value="/WEB-INF/views/notice/review/myReviewList.jsp" />
+	</definition>
+	
+	
+</tiles-definitions>
+
+

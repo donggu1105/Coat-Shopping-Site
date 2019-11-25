@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+       
+       <tiles-definitions>
+       	<definition name="/mypage/memberInfo" extends="baseLayout2">
+       		<put-attribute name="title" value="마이페이지" />
+       		<put-attribute name="body" value="/WEB-INF/views/mypage/memberinfo.jsp" />
+       	</definition>
+       	
+       	<definition name="/mypage/memberInfo_orderList" extends="baseLayout2">
+       		<put-attribute name="title" value="주문내역" />
+       		<put-attribute name="body" value="/WEB-INF/views/mypage/memberinfo_orderlist.jsp" />
+       	</definition>
+       	
+       	<definition name="/mypage/memberInfo_refundList" extends="baseLayout2">
+       		<put-attribute name="title" value="반품내역" />
+       		<put-attribute name="body" value="/WEB-INF/views/mypage/memberinfo_refundList.jsp" />
+       	</definition>
+       	
+       	<definition name="/mypage/orderDetail" extends="baseLayout2">
+       		<put-attribute name="title" value="주문 상세 내역" />
+       		<put-attribute name="body"  value="/WEB-INF/views/mypage/member_orderDetail.jsp"/>
+       	</definition>
+       	
+       	  	<definition name="/mypage/myReviewList" extends="baseLayout2">
+       		<put-attribute name="title" value="마이 리뷰페이지" />
+       		<put-attribute name="body"  value="/WEB-INF/views/mypage/myReviewList.jsp"/>
+       	</definition>
+       	
+       
+       	
+<!--        	<definition name="/notice/qna/myQnAList" extends="baseLayout3"> -->
+<!-- 			<put-attribute name="title" value="내글수정" /> -->
+<!-- 			<put-attribute name="body" value="/WEB-INF/views/notice/qna/myQnAList.jsp" /> -->
+<!-- 		</definition> -->
+		
+<!-- 		<definition name="/notice/review/myReviewList" extends="baseLayout3"> -->
+<!-- 		<put-attribute name="title" value="내글수정" /> -->
+<!-- 		<put-attribute name="body" value="/WEB-INF/views/review/myReviewList.jsp" /> -->
+<!-- 		</definition> -->
+       </tiles-definitions>

@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+ <mapper namespace="mapper.admin.product">
+	 <!-- PRODUCT -->
+	<resultMap id="adminProductResult" type="ProductVO">
+	
+		<result property="pro_code" column="pro_code" />
+		<result property="pro_name" column="pro_name" />
+		<result property="pro_price" column="pro_price" />
+		<result property="pro_sale" column="pro_sale" />
+		
+		<result property="pro_salesrate" column="pro_salesrate" />
+		<result property="pro_count" column="pro_count" />
+		<result property="pro_category" column="pro_category" />
+		<result property="pro_status" column="pro_status" />
+		
+		<result property="pro_imageFileName" column="pro_imageFileName" />
+		<result property="pro_input_date" column="pro_input_date" />
+		<result property="pro_content" column="pro_content" />
+		<result property="pro_grade" column="pro_grade" />
+		
+		<result property="pro_material" column="pro_material" />
+		<result property="pro_prec" column="pro_prec" />
+		
+	</resultMap>
+	<!--Product_Detail  -->
+	<resultMap id="productDetailResult" type="productDetailVO">
+	
+		<result property="pro_detail_code" column="pro_detail_code" />
+		<result property="pro_code" column="pro_code" />
+		<result property="pro_size" column="pro_size" />
+		<result property="pro_color" column="pro_color" />
+		<result property="pro_quantity" column="pro_quantity" />
+		<result property="pro_category_detail" column="pro_category_detail" />
+		<result property="pro_restocked_date" column="pro_restocked_date" />
+		<result property="pro_restocked_yn" column="pro_restocked_yn" />
+		
+		
+		
+	</resultMap>
+	<!-- PRODUCT_IMAGE -->
+	<resultMap id="productImageResult" type="ImageFileVO">
+	
+	
+		<result property="pro_code" column="pro_code" />
+		<result property="pro_image_code" column="pro_image_code" />
+		<result property="pro_imageFileName" column="pro_imageFileName" />
+		<result property="pro_imageFileType" column="pro_imageFileType" />
+		<result property="pro_register" column="pro_register" />
+		<result property="pro_image_cre_date" column="pro_image_cre_date" />
+		
+	</resultMap>
+	
+	
+	<insert id="insertNewProduct" parameterType="java.util.Map">
+		<selectKey resultType="String" keyProperty="pro_code" order="BEFORE">
+			select SEQ_PRODUCT_ID.nextval from dual
+		</selectKey>
+		
+		<![CDATA[
+				insert into product (pro_code,pro_name,
+									pro_price,pro_sale,pro_salesrate,pro_count,pro_grade,pro_input_date,
+									pro_category,pro_status,
+									pro_content,
+									pro_material,pro_prec)
+							values (
+									#{pro_code},#{pro_name},
+									#{pro_price},#{pro_sale},0,0,0,sysdate,
+									#{pro_category},#{pro_status},
+									#{pro_content},
+									#{pro_material},#{pro_prec}
+				)
+		
+		]]>
+	</insert>
+	<insert id="insertNewProductDetail" parameterType="java.util.Map">
+		<![CDATA[
+		insert into product_detail (
+						pro_detail_code,pro_code,pro_size,pro_color,pro_quantity,pro_category_detail
+						)
+						values (SEQ_PRODUCT_DETAIL_ID.nextval ,
+						#{pro_code},#{pro_size},#{pro_color},#{pro_quantity},#{pro_category_detail}
+						)
+		]]>	
+		
+	
+	</insert>
+	
+	<select id="selectAllProductsDetail" resultMap="productDetailResult">
+	
+		select * from product_detail
+	
+	</select>
+	
+	<insert id="insertProductImageFile" parameterType="imageFileVO">
+	<selectKey resultType="int" keyProperty="pro_image_code" order="BEFORE">
+			select SEQ_PRODUCT_IMAGE_ID.nextval from dual
+		</selectKey>
+		<![CDATA[
+		 insert into PRODUCT_IMAGE (pro_code,pro_image_code,
+		 							pro_imageFileName,pro_imageFileType,
+		 							pro_register,pro_image_cre_date
+		 							)
+		 			values			
+		 							(
+		 							#{pro_code},#{pro_image_code},
+		 							#{pro_imageFileName},#{pro_imageFileType},
+		 							#{pro_register},sysdate
+		 							)
+		]]>
+	</insert>
+	<select id="selectTotalProducts" resultType="int" >
+			select count(pro_code) from product	
+	</select>
+	<select id="selectNewProducts" resultType="int" >
+			select count(pro_code) from product	where pro_status='newseller'
+	</select>
+	<select id="selectBestProducts" resultType="int" >
+			select count(pro_code) from product	where pro_status='bestseller'	
+	</select>
+	<select id="selectOffProducts" resultType="int" >
+			select count(pro_code) from product	where pro_status='onSale'
+	</select>
+	<select id="selectSteadyProducts" resultType="int" >
+			select count(pro_code) from product	where pro_status='steadyseller'
+	</select>
+	<select id="selectOutProducts" resultType="int" >
+			select count(pro_code) from product	where pro_status='buy_out'	
+	</select>
+	
+	 <select id="selectAllProducts" parameterType="java.util.Map" resultMap="adminProductResult">
+	 select a.* from (
+        select  rownum rn ,b.*, c.pro_imageFileName
+         from product b , product_image c 
+        where b.pro_code=c.pro_code and
+        b.pro_code in (select e.pro_code from product_detail e) and
+        c.pro_imagefileType='main_image' 
+        <if test="direct_pro_status !=null and !direct_pro_status.equals('')">
+       and b.pro_status=#{direct_pro_status}
+        </if>
+        <if test="pro_status !=null and !pro_status.equals('all') ">
+	   and b.pro_status=#{pro_status}        
+        </if>
+         <if test="pro_category !=null and !pro_category.equals('')">
+	   and b.pro_category=#{pro_category}        
+        </if>
+        <if test="keyword !=null and !keyword.equals('')">
+        and pro_name like '%'||#{keyword}||'%' 
+        </if>
+        order by 
+        <if test="order_price !=null and !order_price.equals('')">
+        	<choose>
+				<when test="order_price.equals('price_desc')">
+					 b.pro_price DESC ,
+				</when>        	
+				<when test="order_price.equals('price_asc')">
+					 b.pro_price ASC ,
+				</when>        	
+        	</choose>
+        </if>
+        <if test="order_salesRate !=null and !order_salesRate.equals('')">
+        	<choose>
+				<when test="order_salesRate.equals('salesRate_desc')">
+				  	b.pro_salesrate DESC ,
+				</when>        	
+				<when test="order_salesRate.equals('salesRate_asc')">
+					b.pro_salesrate ASC ,
+				</when>        	
+        	</choose>
+        </if>
+        <if test="order_count !=null and !order_count.equals('')">
+        	<choose>
+				<when test="order_count.equals('count_desc')">
+					b.pro_count DESC ,
+				</when>        	
+				<when test="order_count.equals('count_asc')">
+					b.pro_count ASC ,
+				</when>        	
+        	</choose>
+        </if>
+        b.pro_code
+    )a where rn between (#{section,jdbcType=NUMERIC}-1)*200+(#{pageNum,jdbcType=NUMERIC}-1)*20+1 
+		and 
+		(#{section,jdbcType=NUMERIC}-1)*200+#{pageNum,jdbcType=NUMERIC}*20
+	</select>
+	
+	<delete id="deleteProducts" parameterType="java.util.Map">
+		delete product where pro_code in (
+		<foreach collection="deleteList" item="item" index="index" separator=",">
+		#{item}
+		</foreach>
+		)
+	
+	</delete>
+	
+	<select id="selectOrderedTotal" parameterType="java.util.Map" resultType="int">
+		select count(*) from product  
+		
+		<choose>
+			<when test="keyword !=null and !keyword.equals('')">
+				where pro_name like '%'||#{keyword}||'%' 
+			</when>
+		</choose>
+		
+		<choose>
+			<when test="pro_status !=null and !pro_status.equals('all') and keyword !=null and !keyword.equals('')">
+				and pro_status=#{pro_status}  
+			</when>
+			
+			<when test="pro_status !=null and !pro_status.equals('all') and keyword ==null and keyword.equals('')">
+				where pro_status=#{pro_status}  
+			</when>
+		</choose>
+		<choose>
+			<when test="pro_category !=null and !pro_category.equals('') and keyword !=null and !keyword.equals('') and pro_status !=null and !pro_status.equals('all')">
+				and pro_category=#{pro_category}   
+			</when>
+				<when test="pro_category !=null and !pro_category.equals('') and keyword ==null and keyword.equals('') and pro_status ==null and pro_status.equals('all')">
+				where pro_category=#{pro_category}   
+			</when>
+		</choose>
+		
+
+	
+	</select>
+	
+	<select id="selectAllCoat" resultType="int" parameterType="String">
+	select count(pd.pro_detail_code) from product p, product_detail pd 
+	where p.pro_code = pd.pro_code and p.pro_category = #{param1}
+	</select>
+	
+	<select id="selectedTotalProducts" resultType="int" parameterType="java.util.Map">
+	select count(pro_code) from product where pro_code >0
+	<if test="direct_pro_status !=null and !direct_pro_status.equals('')"> 
+	and pro_status=#{direct_pro_status} 
+	</if>
+	<if test="direct_pro_status !=null and !direct_pro_status.equals('')">
+       and pro_status=#{direct_pro_status}
+        </if>
+        <if test="pro_status !=null and !pro_status.equals('all') ">
+	   and pro_status=#{pro_status}        
+        </if>
+         <if test="pro_category !=null and !pro_category.equals('')">
+	   and pro_category=#{pro_category}        
+        </if>
+        <if test="keyword !=null and !keyword.equals('')">
+        and pro_name like '%'||#{keyword}||'%' 
+        </if>
+	</select>
+</mapper>
+	
+

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+   <definition name="admin_baseLayout"
+      template="/WEB-INF/views/admin/common/layout.jsp">
+      <put-attribute name="title" value="레이아웃 페이지" />
+      <put-attribute name="header" value="/WEB-INF/views/admin/common/header.jsp" />
+      <put-attribute name="side" value="/WEB-INF/views/admin/common/side.jsp" />
+      <put-attribute name="body" value="" />
+      <put-attribute name="footer" value="/WEB-INF/views/admin/common/footer.jsp" />
+   </definition>
+   
+   <definition name="empty" template="/WEB-INF/views/admin/common/emptyLayout.jsp">
+      <put-attribute name="content" value="" />
+   </definition>
+   
+   <definition name="/admin/product/addNewModelForm" extends="empty">
+      <put-attribute name="content" value="/WEB-INF/views/admin/product/addNewModelForm.jsp" />
+   </definition>
+   
+
+   <definition name="/admin/product/addNewProductForm" extends="admin_baseLayout">
+      <put-attribute name="title" value="새 상품 정보등록창" />
+      <put-attribute name="body" value="/WEB-INF/views/admin/product/addNewProductForm.jsp" />
+   </definition>
+   
+   <definition name="/admin/product/addNewProductDetailForm" extends="admin_baseLayout">
+      <put-attribute name="title" value="새 상품 디테일 정보등록창" />
+      <put-attribute name="body" value="/WEB-INF/views/admin/product/addNewProductDetailForm.jsp" />
+   </definition>
+   
+   <definition name="/admin/product/listProducts" extends="admin_baseLayout">
+      <put-attribute name="title" value="상품관리 메인 창" />
+      <put-attribute name="body" value="/WEB-INF/views/admin/product/listProducts.jsp" />
+   </definition>
+   
+   <definition name="/admin/product/modifyProductForm" extends="admin_baseLayout">
+      <put-attribute name="title" value="상품 수정 창" />
+      <put-attribute name="body" value="/WEB-INF/views/admin/product/modifyProductForm.jsp" />
+   </definition>
+   
+   <definition name="/admin/product/listOutOfStock" extends="admin_baseLayout">
+		<put-attribute name="title" value="재고 요청관리" />
+		<put-attribute name="body" value="/WEB-INF/views/admin/product/listOutOfStock.jsp" />
+	</definition>
+	
+	   <definition name="/admin/product/productStatics" extends="admin_baseLayout">
+		<put-attribute name="title" value="상품 통계" />
+		<put-attribute name="body" value="/WEB-INF/views/admin/product/productStatics.jsp" />
+	</definition>
+   
+</tiles-definitions>
+

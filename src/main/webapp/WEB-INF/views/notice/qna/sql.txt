@@ -1,0 +1,22 @@
+--qna notice table
+create table q_notice(
+q_index number(4) primary key,
+q_title varchar2(50) not null,
+q_option varchar2(35),
+q_write varchar2(30) not null,
+q_content varchar2(4000),
+q_file varchar2(1000),
+q_date date DEFAULT sysdate,
+q_hit number(4) default 0,
+q_group number(4),
+q_step number(4),
+q_indent number(4)
+);
+
+select * from q_notice;
+
+create sequence qnotice_seq;
+
+drop table q_notice;
+drop SEQUENCE qnotice_seq;
+create sequence qnotice_seq;

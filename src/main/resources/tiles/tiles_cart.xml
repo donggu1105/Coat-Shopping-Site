@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+       
+     <tiles-definitions>
+     	<definition name="/cart/cartlist" extends="baseLayout2">
+     		<put-attribute name="title" value="장바구니" />
+     		<put-attribute name="body" value="/WEB-INF/views/cart/cartlist.jsp" />
+     	</definition>
+     	
+     	<definition name="/cart/cartOptionUpdateForm" template="/WEB-INF/views/cart/cartOptionUpdateForm.jsp">
+     		<put-attribute name="title" value="옵션 변경/추가" />
+     	</definition>
+     </tiles-definitions>

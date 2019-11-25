@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+       
+<tiles-definitions>
+
+<!--  Member -->
+	<definition name="/member/membersignupform" extends="baseLayout2">
+		<put-attribute name="title" value="회원가입" />
+		<put-attribute name="body" value="/WEB-INF/views/member/member/membersignup.jsp" />
+	</definition>
+	
+	<definition name="/member/memberloginform" extends="baseLayout2">
+		<put-attribute name="title" value="로그인창" />
+		<put-attribute name="body" value="/WEB-INF/views/member/member/memberlogin.jsp" />
+	</definition>
+	
+	<definition name="/member/memberupdateform" extends="baseLayout2">
+		<put-attribute name="title" value="회원정보수정" />
+		<put-attribute name="body" value="/WEB-INF/views/member/member/memberUpdate.jsp" />
+	</definition>
+	
+	<definition name="/member/membersignupchoice" extends="baseLayout2">
+		<put-attribute name="title" value="회원가입 선택" />
+		<put-attribute name="body" value="/WEB-INF/views/member/member/membersignupchoice.jsp" />
+	</definition>
+	
+	<definition name="/member/membersecessionform" extends="baseLayout2">
+		<put-attribute name="title" value="회원 탈퇴" />
+		<put-attribute name="body" value="/WEB-INF/views/member/member/membersecession.jsp" />
+	</definition>
+	
+	
+	<!-- NonMember -->
+	<definition name="/nonmember/nonmembersignupform" extends="baseLayout2">
+		<put-attribute name="title" value="비회원 회원가입"/>
+		<put-attribute name="body" value="/WEB-INF/views/member/nonmember/nonmembersignupform.jsp"/>
+	</definition>
+	
+	<definition name="/nonmember/nonmemberupdateform" extends="baseLayout2">
+		<put-attribute name="title" value="비회원 정보 수정" />
+		<put-attribute name="body" value="/WEB-INF/views/member/nonmember/nonmemberupdateform.jsp" />
+	</definition>
+	
+</tiles-definitions>

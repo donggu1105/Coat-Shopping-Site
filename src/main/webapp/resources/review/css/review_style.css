@@ -1,0 +1,62 @@
+@media (min-width: 991px) { 
+.review_table, .review_table_list{
+	border-collapse: collapse;
+	width: 991px;
+	white-space: normal;
+	font-size: 12.5px;
+	table-layout: fixed;
+	}
+	
+}
+
+@media (max-width: 991px) { 
+.review_table, .review_table_list{
+	border-collapse: collapse;
+	width: 767px;
+	white-space: normal;
+	font-size: 12.5px;
+	table-layout: fixed;
+	}
+	
+}
+
+@media (max-width: 767px) { 
+.review_table, .review_table_list{
+	border-collapse: collapse;
+	width: 500px;
+	white-space: normal;
+	font-size: 12.5px;
+	table-layout: fixed;
+	}
+	
+}
+
+
+th{
+	background-color: #222222;
+	color:#B2B2B2;
+	text-align: center;
+	border-bottom: 1px solid #ddd;
+	padding : 10px 5px 10px 5px;
+	font-size: 13.5px;
+
+}
+td{
+	text-align: left;
+	border-bottom: 1px solid #ddd;
+	padding : 15px 20px 15px 20px;
+}
+
+.left{
+	background-color: #222222;
+	text-align: center;
+	color:#B2B2B2;
+	text-overflow:ellipsis;
+	padding : 10px 5px 10px 5px;
+	font-size: 13.5px;
+	
+
+}
+tr:hover {
+	background-color: #f5f5f5;
+}
