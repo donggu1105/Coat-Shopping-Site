@@ -16,7 +16,7 @@ public class AdminMainController {
 	
 	@RequestMapping(value="/adminMain.do" , method= {RequestMethod.POST, RequestMethod.GET})
 	public ModelAndView adminMain (HttpServletRequest request, HttpServletResponse response) {
-	
+		System.out.println("git 출력");
 		ModelAndView mav=new ModelAndView();
 		String viewName=(String)request.getAttribute("viewName");
 		
